@@ -2,11 +2,7 @@
 
 # Installs Homebrew software.
 
-if ! command -v brew > /dev/null; then
-  /bin/bash -c "$(curl --location --fail --silent --show-error https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  printf "%s\n" "eval $(/opt/homebrew/bin/brew shellenv)" >> "$HOME/.zprofile"
-  eval $(/opt/homebrew/bin/brew shellenv)
-fi
+install_homebrew
 
 brew install asciinema
 brew install bash
