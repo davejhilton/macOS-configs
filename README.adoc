@@ -37,6 +37,7 @@ toc::[]
 ** link:https://github.com/junegunn/fzf[FZF]
 ** link:https://git-scm.com[Git]
 ** link:https://github.com/dandavison/delta[Git Delta]
+** link:https://github.com/newren/git-filter-repo[Git Filter Repo]
 ** link:https://github.com/github/git-sizer[Git Sizer]
 ** link:https://www.gnupg.org[GPG]
 ** link:http://www.graphicsmagick.org[Graphics Magick]
@@ -185,7 +186,6 @@ Store] applications.
 * Downloads, installs, and configures software applications not supported via Homebrew or the App
 Store:
 ** link:https://www.docker.com[Docker]
-** link:https://github.com/newren/git-filter-repo[Git Filter Repo]
 ** link:https://ranchero.com/netnewswire[NewNewsWire]
 ** link:https://www.sonos.com[Sonos]
 * Downloads, installs, and configures software extensions:
@@ -215,7 +215,7 @@ To install, run:
 ----
 git clone https://github.com/bkuhlmann/mac_os-config.git
 cd mac_os-config
-git checkout 17.2.0
+git checkout 17.3.0
 ----
 
 == Usage
@@ -231,8 +231,8 @@ Double check you have the following in place:
 . Ensure a recent backup of your machine exists and works properly.
 . Ensure Xcode installed per macOS requirements.
 . Ensure link:https://support.apple.com/en-us/HT208198[Startup Security Utility] is disabled.
-.. Turn on or restart your machine then press and hold `COMMAND + R` immediately after seeing the
-  Apple logo.
+.. Turn on or restart your machine then press and hold `POWER` (Silicon) or `COMMAND + R` (Intel)
+   buttons immediately upon boot or restart.
 .. Select Utilities → Startup Security Utility from the main menu.
 .. Select _Secure Boot: No Security_.
 .. Select _External Boot: Allow booting from external media_.

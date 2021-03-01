@@ -14,13 +14,8 @@
 #   git config --local core.hooksPath /dev/null
 # )
 
-
+homebrew_bin_root=$(get_homebrew_bin_root)
 # Sublime Text
-if [ ! -e "/usr/bin/sublime" ]; then
-  sudo ln -sv "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" /usr/local/bin/subl
+if [ ! -e "/usr/bin/subl" ]; then
+	sudo ln -sv "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" "${homebrew_bin_root}/subl"
 fi
-
-# Dotfiles
-# rm -f $HOME/.bash_profile
-# install_git_project "https://github.com/bkuhlmann/dotfiles.git" $REPO_DOTFILES "dotfiles" "bin/run i"
-# source $HOME/.bashrc

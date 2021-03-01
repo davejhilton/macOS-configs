@@ -2,13 +2,10 @@
 
 # Installs Homebrew software.
 
-if ! command -v brew > /dev/null; then
-  /bin/bash -c "$(curl --location --fail --silent --show-error https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-  export PATH="/usr/local/bin:$PATH"
-  printf "%s\n" "export PATH=\"/usr/local/bin:$PATH\"" >> "$HOME/.bash_profile"
-fi
+install_homebrew
 
 brew install mas # required for installing App Store apps later
+
 
 brew install ansible
 brew install dive
@@ -39,4 +36,3 @@ brew install watch
 brew install waypoint
 brew install wget
 brew install zsh-syntax-highlighting
-
