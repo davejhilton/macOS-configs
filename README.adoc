@@ -2,7 +2,20 @@
 :toclevels: 5
 :figure-caption!:
 
-= macOS Configuration
+ifdef::env-github[]
+:important-caption: :heavy_exclamation_mark:
+endif::[]
+
+= macOS Configs
+
+[IMPORTANT]
+====
+**THIS REPO IS A FORK of the amazing link:https://github.com/bkuhlmann/mac_os-config.git[bkuhlmann/mac_os-config] project, edited with my own configs.**
+
+**Everything below this is from the original project's README.**
+====
+
+---
 
 [link=https://circleci.com/gh/bkuhlmann/mac_os-config]
 image::https://circleci.com/gh/bkuhlmann/mac_os-config.svg?style=svg[Circle CI Status]
