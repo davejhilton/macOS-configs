@@ -14,14 +14,14 @@ defaults write NSGlobalDomain NSDisableAutomaticTermination -bool true
 printf "%s\n" "System - Expand save panel by default."
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 
-printf "%s\n" "System - Disable 'Are you sure you want to open this application?' dialog."
-defaults write com.apple.LaunchServices LSQuarantine -bool false
+# printf "%s\n" "System - Disable 'Are you sure you want to open this application?' dialog."
+# defaults write com.apple.LaunchServices LSQuarantine -bool false
 
 printf "%s\n" "System - Increase window resize speed for Cocoa applications."
 defaults write NSGlobalDomain NSWindowResizeTime -float 0.001
 
-printf "%s\n" "System - Disable window resume system-wide."
-defaults write NSGlobalDomain NSQuitAlwaysKeepsWindows -bool false
+printf "%s\n" "System - Enable window resume system-wide."
+defaults write NSGlobalDomain NSQuitAlwaysKeepsWindows -bool true
 
 printf "%s\n" "System - Disable auto-correct."
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
@@ -32,6 +32,12 @@ defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
 printf "%s\n" "System - Disable smart dashes (not useful when writing code)."
 defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 
+printf "%s\n" "System - Disable automatic capitalization (annoying when writing code)."
+defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+
+printf "%s\n" "System - Disable automatic period substitution (annoying when writing code)."
+defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
+
 printf "%s\n" "System - Require password immediately after sleep or screen saver begins."
 defaults write com.apple.screensaver askForPassword -int 1
 defaults write com.apple.screensaver askForPasswordDelay -int 0
@@ -39,11 +45,26 @@ defaults write com.apple.screensaver askForPasswordDelay -int 0
 printf "%s\n" "System - Avoid creating .DS_Store files on network volumes."
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
+printf "%s\n" "System - Disable delayed TCP acks (to improve SMB network fileshare performance)."
+sudo sysctl -w net.inet.tcp.delayed_ack=0
+echo -e "net.inet.tcp.delayed_ack=0\n" | sudo tee /etc/sysctl.conf >/dev/null
+
+printf "%s\n" "System - Disable SMB Signing (to improve SMB network fileshare performance)."
+sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server SigningRequired -bool FALSE
+echo -e "[default]\nsigning_required=no\n" | sudo tee /etc/nsmb.conf >/dev/null
+sudo /usr/libexec/smb-sync-preferences
+
 printf "%s\n" "System - Automatically restart if system freezes."
 systemsetup -setrestartfreeze on
 
 printf "%s\n" "System - Disable software updates."
 sudo softwareupdate --schedule off
+
+printf "%s\n" "System - Save screenshots to 'screenshots' folder on Desktop."
+defaults write com.apple.screencapture location -string "${HOME}/Desktop/screenshots"
+
+printf "%s\n" "System - Disable shadow in screenshots."
+defaults write com.apple.screencapture disable-shadow -bool true
 
 printf "%s\n" "Keyboard - Automatically illuminate built-in MacBook keyboard in low light."
 defaults write com.apple.BezelServices kDim -bool true
@@ -54,17 +75,21 @@ defaults write com.apple.BezelServices kDimTime -int 300
 printf "%s\n" "Keyboard - Enable keyboard access for all controls."
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-printf "%s\n" "Keyboard - Set a fast keyboard repeat rate."
-defaults write NSGlobalDomain KeyRepeat -int 0
-
 printf "%s\n" "Keyboard - Disable press-and-hold for keys in favor of key repeat."
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
-printf "%s\n" "Trackpad - Map bottom right corner to right-click."
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadCornerSecondaryClick -int 2
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
-defaults -currentHost write NSGlobalDomain com.apple.trackpad.trackpadCornerClickBehavior -int 1
-defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true
+printf "%s\n" "Keyboard - Set a fast keyboard repeat rate."
+defaults write NSGlobalDomain KeyRepeat -int 1 # NOTE: the values range from 0 (too fast) to 120 (way too slow).
+
+printf "%s\n" "Keyboard - Set the initial delay before key repeat."
+defaults write NSGlobalDomain InitialKeyRepeat -int 25 # NOTE: the values range from 0 (no delay) to 120 (way too long).
+
+
+# printf "%s\n" "Trackpad - Map bottom right corner to right-click."
+# defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadCornerSecondaryClick -int 2
+# defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
+# defaults -currentHost write NSGlobalDomain com.apple.trackpad.trackpadCornerClickBehavior -int 1
+# defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true
 
 printf "%s\n" "Trackpad - Enable tap to click for current user and the login screen."
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
@@ -81,41 +106,85 @@ defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool true
 printf "%s\n" "Bluetooth - Increase sound quality for headphones/headsets."
 defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40
 
-printf "%s\n" "Menu Bar - Show only Bluetooth and Airport."
-for domain in $HOME/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
-  defaults write "${domain}" dontAutoLoad -array "/System/Library/CoreServices/Menu Extras/TimeMachine.menu"
-done
+# printf "%s\n" "Menu Bar - Show only Bluetooth and Airport."
+# for domain in $HOME/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
+#   defaults write "${domain}" dontAutoLoad -array "/System/Library/CoreServices/Menu Extras/TimeMachine.menu"
+# done
 
-defaults write com.apple.systemuiserver menuExtras -array \
-  "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" \
-  "/System/Library/CoreServices/Menu Extras/AirPort.menu"
+# defaults write com.apple.systemuiserver menuExtras -array \
+#   "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" \
+#   "/System/Library/CoreServices/Menu Extras/AirPort.menu"
 
 printf "%s\n" "Dock - Remove all default app icons."
 defaults write com.apple.dock persistent-apps -array
 
-printf "%s\n" "Dock - Automatically hide and show."
-defaults write com.apple.dock autohide -bool true
+# printf "%s\n" "Dock - Automatically hide and show."
+# defaults write com.apple.dock autohide -bool true
 
-printf "%s\n" "Dock - Remove the auto-hiding delay."
-defaults write com.apple.Dock autohide-delay -float 0
+# printf "%s\n" "Dock - Remove the auto-hiding delay."
+# defaults write com.apple.Dock autohide-delay -float 0
 
 printf "%s\n" "Dock - Don’t show Dashboard as a Space."
 defaults write com.apple.dock "dashboard-in-overlay" -bool true
 
+printf "%s\n" "Dock - Show indicator lights for open applications."
+defaults write com.apple.dock show-process-indicators -bool true
+
+printf "%s\n" "Dock - Don’t automatically rearrange Spaces based on most recent use."
+defaults write com.apple.dock mru-spaces -bool false
+
+printf "%s\n" "Dock - Don’t show recent applications in Dock."
+defaults write com.apple.dock show-recents -bool false
+
+printf "%s\n" "Dock - Add blank spacer to the applications side of the Dock."
+defaults write com.apple.dock persistent-apps -array-add '{tile-data={}; tile-type="spacer-tile";}'
+
+# Hot corners
+# Possible values:
+#  0: no-op
+#  2: Mission Control
+#  3: Show application windows
+#  4: Desktop
+#  5: Start screen saver
+#  6: Disable screen saver
+#  7: Dashboard
+# 10: Put display to sleep
+# 11: Launchpad
+# 12: Notification Center
+# 13: Lock Screen
+
+# Top left screen corner → Disable Screen Saver
+defaults write com.apple.dock wvous-tl-corner -int 6
+defaults write com.apple.dock wvous-tl-modifier -int 0
+# Top right screen corner → Disable Screen Saver
+defaults write com.apple.dock wvous-tr-corner -int 6
+defaults write com.apple.dock wvous-tr-modifier -int 0
+# Bottom left screen corner → Show Desktop
+defaults write com.apple.dock wvous-bl-corner -int 4
+defaults write com.apple.dock wvous-bl-modifier -int 0
+# Bottom left screen corner → Show Desktop
+defaults write com.apple.dock wvous-br-corner -int 4
+defaults write com.apple.dock wvous-br-modifier -int 0
+
+
+
 printf "%s\n" "iCloud - Save to disk by default."
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
-printf "%s\n" "Finder - Show the $HOME/Library folder."
-chflags nohidden $HOME/Library
+printf "%s\n" "Finder - Unhide $HOME/Library folder."
+chflags nohidden "$HOME/Library"
 
-printf "%s\n" "Finder - Show hidden files."
-defaults write com.apple.finder AppleShowAllFiles -bool true
+printf "%s\n" "Finder - Unhide the /Volumes folder."
+sudo chflags nohidden /Volumes
 
-printf "%s\n" "Finder - Show filename extensions."
-defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+# printf "%s\n" "Finder - Show hidden files."
+# defaults write com.apple.finder AppleShowAllFiles -bool true
 
-printf "%s\n" "Finder - Disable the warning when changing a file extension."
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+# printf "%s\n" "Finder - Show filename extensions."
+# defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+# printf "%s\n" "Finder - Disable the warning when changing a file extension."
+# defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
 printf "%s\n" "Finder - Show path bar."
 defaults write com.apple.finder ShowPathbar -bool true
@@ -129,23 +198,35 @@ defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 printf "%s\n" "Finder - Use list view in all Finder windows."
 defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 
-printf "%s\n" "Finder - Allow quitting via COMMAND+Q -- Doing so will also hide desktop icons."
-defaults write com.apple.finder QuitMenuItem -bool true
+# printf "%s\n" "Finder - Allow quitting via COMMAND+Q -- Doing so will also hide desktop icons."
+# defaults write com.apple.finder QuitMenuItem -bool true
 
-printf "%s\n" "Finder - Disable the warning before emptying the Trash."
-defaults write com.apple.finder WarnOnEmptyTrash -bool false
+# printf "%s\n" "Finder - Disable the warning before emptying the Trash."
+# defaults write com.apple.finder WarnOnEmptyTrash -bool false
 
 printf "%s\n" "Finder - Allow text selection in Quick Look."
 defaults write com.apple.finder QLEnableTextSelection -bool true
 
-printf "%s\n" "iOS Simulator - Symlink the iOS Simulator application."
-sudo ln -sf "/Applications/Xcode.app/Contents/Applications/iPhone Simulator.app" "/Applications/iOS Simulator.app"
+printf "%s\n" "Finder - Open new Finder windows to Home folder by default."
+defaults write com.apple.finder NewWindowTarget -string "PfLo"
+defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}"
 
-printf "%s\n" "Safari - Set home page to 'about:blank' for faster loading."
-defaults write com.apple.Safari HomePage -string "about:blank"
+printf "%s\n" "Finder - Show icons for hard drives, servers, and removable media on the desktop."
+defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
+defaults write com.apple.finder ShowHardDrivesOnDesktop -bool true
+defaults write com.apple.finder ShowMountedServersOnDesktop -bool true
+defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
 
-printf "%s\n" "Safari - Hide bookmarks bar."
-defaults write com.apple.Safari ShowFavoritesBar -bool false
+
+# printf "%s\n" "iOS Simulator - Symlink the iOS Simulator application."
+# sudo ln -sf "/Applications/Xcode.app/Contents/Applications/iPhone Simulator.app" "/Applications/iOS Simulator.app"
+
+# printf "%s\n" "Safari - Set home page to 'about:blank' for faster loading."
+# defaults write com.apple.Safari HomePage -string "about:blank"
+
+
+printf "%s\n" "Safari - Show bookmarks bar."
+defaults write com.apple.Safari ShowFavoritesBar -bool true
 
 printf "%s\n" "Safari - Use Contains instead of Starts With in search banners."
 defaults write com.apple.Safari FindOnPageMatchesWordStartsOnly -bool false
@@ -161,23 +242,40 @@ defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebK
 printf "%s\n" "Safari - Add a context menu item for showing the Web Inspector in web views."
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 
-printf "%s\n" "Safari - Disable sending search queries to Apple.."
+printf "%s\n" "Safari - Disable sending search queries to Apple."
 defaults write com.apple.Safari UniversalSearchEnabled -bool false
+
+printf "%s\n" "Safari - Show the full URL in the address bar (scheme still hidden)."
+defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
+
+printf "%s\n" "Safari - Don't open 'safe' files automatically after downloading."
+defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
+
+printf "%s\n" "Safari - Disable Backspace key as 'Back' page in history."
+defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2BackspaceKeyNavigationEnabled -bool false
 
 printf "%s\n" "Chrome - Prevent native print dialog, use system dialog instead."
 defaults write com.google.Chrome DisablePrintPreview -boolean true
 
-printf "%s\n" "Mail - Copy email addresses as 'foo@example.com' instead of 'Foo Bar <foo@example.com>'."
-defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
+printf "%s\n" "Chrome - Disable the all too sensitive backswipe on trackpads."
+defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool false
+defaults write com.google.Chrome.canary AppleEnableSwipeNavigateWithScrolls -bool false
 
-printf "%s\n" "Mail - Disable send animation."
-defaults write com.apple.mail DisableSendAnimations -bool true
+printf "%s\n" "Chrome - Disable the all too sensitive backswipe on Magic Mouse."
+defaults write com.google.Chrome AppleEnableMouseSwipeNavigateWithScrolls -bool false
+defaults write com.google.Chrome.canary AppleEnableMouseSwipeNavigateWithScrolls -bool false
 
-printf "%s\n" "Mail - Disable reply animation."
-defaults write com.apple.mail DisableReplyAnimations -bool true
+# printf "%s\n" "Mail - Copy email addresses as 'foo@example.com' instead of 'Foo Bar <foo@example.com>'."
+# defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false
 
-printf "%s\n" "Mail - Enable COMMAND+ENTER to send mail."
-defaults write com.apple.mail NSUserKeyEquivalents -dict-add "Send" -string "@\\U21a9"
+# printf "%s\n" "Mail - Disable send animation."
+# defaults write com.apple.mail DisableSendAnimations -bool true
+
+# printf "%s\n" "Mail - Disable reply animation."
+# defaults write com.apple.mail DisableReplyAnimations -bool true
+
+# printf "%s\n" "Mail - Enable COMMAND+ENTER to send mail."
+# defaults write com.apple.mail NSUserKeyEquivalents -dict-add "Send" -string "@\\U21a9"
 
 printf "%s\n" "Address Book - Enable debug menu."
 defaults write com.apple.addressbook ABShowDebugMenu -bool true
@@ -213,3 +311,9 @@ defaults write com.apple.appstore WebKitDeveloperExtras -bool true
 
 printf "%s\n" "App Store - Enable Debug Menu in the Mac App Store."
 defaults write com.apple.appstore ShowDebugMenu -bool true
+
+#printf "%s\n" "Messages - Disable automatic emoji substitution (i.e. use plain text smileys)."
+#defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticEmojiSubstitutionEnablediMessage" -bool false
+
+printf "%s\n" "Messages - Disable smart quotes in messages."
+defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
