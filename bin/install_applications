@@ -3,133 +3,75 @@
 # Installs applications.
 
 
+# shellcheck disable=SC2155,SC2162
 
-# shellcheck disable=SC2155
 
-do_install() {
 
 # Authy
-	install_dmg_app "$AUTHY_APP_URL" "$AUTHY_VOLUME_NAME" "$AUTHY_APP_NAME"
+install_dmg_app "$AUTHY_APP_URL" "$AUTHY_VOLUME_NAME" "$AUTHY_APP_NAME"
 
 # BetterTouchTool
-	install_zip_app "$BTT_APP_URL" "$BTT_APP_NAME"
+install_zip_app "$BTT_APP_URL" "$BTT_APP_NAME"
 
 # Docker
-	install_dmg_app "$DOCKER_APP_URL" "$DOCKER_VOLUME_NAME" "$DOCKER_APP_NAME"
+install_dmg_app "$DOCKER_APP_URL" "$DOCKER_VOLUME_NAME" "$DOCKER_APP_NAME"
 
 # Mailplane
-	install_zip_app "$MAILPLANE_APP_URL" "$MAILPLANE_APP_NAME"
+install_zip_app "$MAILPLANE_APP_URL" "$MAILPLANE_APP_NAME"
 
 # PrusaSlicer
-	download_file "$PRUSASLICER_APP_URL" "$PRUSASLICER_DMG_FILE"
-	install_dmg_nested_app "$MAC_OS_WORK_PATH/$PRUSASLICER_DMG_FILE" "$PRUSASLICER_VOLUME_NAME" "$PRUSASLICER_NESTED_APP_PATH" "$PRUSASLICER_APP_NAME"
+install_dmg_nested_app "$PRUSASLICER_APP_URL" "$PRUSASLICER_VOLUME_NAME" "$PRUSASLICER_NESTED_APP_PATH" "$PRUSASLICER_APP_NAME"
 
 # Sequel Pro
-	install_dmg_app "$SEQUELPRO_APP_URL" "$SEQUELPRO_VOL_NAME" "$SEQUELPRO_APP_NAME"
+install_dmg_app "$SEQUELPRO_APP_URL" "$SEQUELPRO_VOL_NAME" "$SEQUELPRO_APP_NAME"
 
 # Wireshark
-	install_dmg_app "$WIRESHARK_APP_URL" "$WIRESHARK_VOLUME_NAME" "$WIRESHARK_APP_NAME"
+install_dmg_app "$WIRESHARK_APP_URL" "$WIRESHARK_VOLUME_NAME" "$WIRESHARK_APP_NAME"
 
 # Zoom
-	install_pkg_url "$ZOOM_PKG_URL" "$ZOOM_APP_NAME"
+install_pkg_url "$ZOOM_PKG_URL" "$ZOOM_APP_NAME"
 
 
-
-	printf "Going to install a few apps from local backup...\n"
-	# shellcheck disable=SC2162
-	read -p "Where is the root folder of your backup? (Example: \"/Volumes/SanDisk 500GB/restore\" - or, leave empty to skip): " mac_os_backup_dir
-	if [[ ! -e "$mac_os_backup_dir" ]]; then
-		if [[ -z "$mac_os_backup_dir" ]]; then
-			printf "INFO: No backup volume path provided. Skipping local installs.\n"
-		else
-			printf "WARNING: Backup volume cannot be found: %s\n" "$mac_os_backup_dir"
-		fi
+# Apps with Installers that are already on a local/backup disk:
+printf "Going to install a few apps from local backup...\n"
+read -p "Where is the root folder of your backup? (Example: \"/Volumes/SanDisk 500GB/restore\" - or, leave empty to skip): " mac_os_backup_dir
+if [[ ! -e "$mac_os_backup_dir" ]]; then
+	if [[ -z "$mac_os_backup_dir" ]]; then
+		printf "INFO: No backup volume path provided. Skipping local installs.\n"
 	else
+		printf "WARNING: Backup volume cannot be found: %s\n" "$mac_os_backup_dir"
+	fi
+else
 
 # SketchUp 2017
-		if [[ -e "$mac_os_backup_dir/$SKETCHUP_DMG_FILE" ]]; then
-			install_dmg_nested_app "$mac_os_backup_dir/$SKETCHUP_DMG_FILE" "$SKETCHUP_VOL_NAME" "$SKETCHUP_NESTED_APP_PATH" "$SKETCHUP_APP_NAME"
-		else
-			printf "  Skipping install of SketchUp 2017.\n"
-		fi
+	if [[ -e "$mac_os_backup_dir/$SKETCHUP_DMG_FILE" ]]; then
+		install_local_dmg_nested_app "$mac_os_backup_dir/$SKETCHUP_DMG_FILE" "$SKETCHUP_VOL_NAME" "$SKETCHUP_NESTED_APP_PATH" "$SKETCHUP_APP_NAME"
+	else
+		printf "  Skipping install of SketchUp 2017.\n"
+	fi
 
 # ShareMouse
-		if [[ -e "$mac_os_backup_dir/$SHAREMOUSE_DMG_FILE" ]]; then
-			install_local_dmg_app "$mac_os_backup_dir/$SHAREMOUSE_DMG_FILE" "$SHAREMOUSE_VOL_NAME" "$SHAREMOUSE_APP_NAME"
-		else
-			printf "  Skipping install of ShareMouse.\n"
-		fi
+	if [[ -e "$mac_os_backup_dir/$SHAREMOUSE_DMG_FILE" ]]; then
+		install_local_dmg_app "$mac_os_backup_dir/$SHAREMOUSE_DMG_FILE" "$SHAREMOUSE_VOL_NAME" "$SHAREMOUSE_APP_NAME"
+	else
+		printf "  Skipping install of ShareMouse.\n"
+	fi
 
 # Toulouse and Xplorers (games.asobrain.com JNLP launchers)
-		if [[ -e "$mac_os_backup_dir/$TOULOUSE_PRACTICE_JNLP_PATH" ]]; then
-			cp -a "$mac_os_backup_dir/$TOULOUSE_PRACTICE_JNLP_PATH" "/Applications/$TOULOUSE_PRACTICE_APP_NAME"
-			printf "Installed %s\n" "$TOULOUSE_PRACTICE_APP_NAME"
-			
-			cp -a "$mac_os_backup_dir/$TOULOUSE_RANKING_JNLP_PATH" "/Applications/$TOULOUSE_RANKING_APP_NAME"
-			printf "Installed %s\n" "$TOULOUSE_RANKING_APP_NAME"
-			
-			cp -a "$mac_os_backup_dir/$XPLORERS_PRACTICE_JNLP_PATH" "/Applications/$XPLORERS_PRACTICE_APP_NAME"
-			printf "Installed %s\n" "$XPLORERS_PRACTICE_APP_NAME"
-			
-			cp -a "$mac_os_backup_dir/$XPLORERS_RANKING_JNLP_PATH" "/Applications/$XPLORERS_RANKING_APP_NAME"
-			printf "Installed %s\n" "$XPLORERS_RANKING_APP_NAME"
-		else
-			printf "  Skipping install of Toulouse and Xplorers Jars (games.asobrain.com jnlp launchers).\n"
-		fi
-
+	if [[ -e "$mac_os_backup_dir/$TOULOUSE_PRACTICE_JNLP_PATH" ]]; then
+		cp -a "$mac_os_backup_dir/$TOULOUSE_PRACTICE_JNLP_PATH" "/Applications/$TOULOUSE_PRACTICE_APP_NAME"
+		printf "Installed %s\n" "$TOULOUSE_PRACTICE_APP_NAME"
+		
+		cp -a "$mac_os_backup_dir/$TOULOUSE_RANKING_JNLP_PATH" "/Applications/$TOULOUSE_RANKING_APP_NAME"
+		printf "Installed %s\n" "$TOULOUSE_RANKING_APP_NAME"
+		
+		cp -a "$mac_os_backup_dir/$XPLORERS_PRACTICE_JNLP_PATH" "/Applications/$XPLORERS_PRACTICE_APP_NAME"
+		printf "Installed %s\n" "$XPLORERS_PRACTICE_APP_NAME"
+		
+		cp -a "$mac_os_backup_dir/$XPLORERS_RANKING_JNLP_PATH" "/Applications/$XPLORERS_RANKING_APP_NAME"
+		printf "Installed %s\n" "$XPLORERS_RANKING_APP_NAME"
+	else
+		printf "  Skipping install of Toulouse and Xplorers Jars (games.asobrain.com jnlp launchers).\n"
 	fi
 
-
-}
-
-
-# Custom Installer functions...
-
-
-# custom installer for installing a .pkg file from a URL
-install_pkg_url() {
-	local url="$1"
-	local app_name="$2"
-	local work_file="download.pkg"
-	download_file "$url" "$work_file"
-	install_pkg "$MAC_OS_WORK_PATH" "$app_name"
-	verify_application "$app_name"
-}
-
-# custom installer for apps using a local DMG file
-install_local_dmg_app() {
-	local dmg_file_path="$1"
-	local mount_point="/Volumes/$2"
-	local app_name="$3"
-	local install_path=$(get_install_path "$app_name")
-
-	if [[ ! -e "$install_path" ]]; then
-		local install_root=$(get_install_root "$app_name")
-		mount_image "$dmg_file_path"
-		printf "Installing: %s/%s...\n" "$install_root" "$app_name"
-		cp -a "$mount_point/$app_name" "$install_root"
-		unmount_image "$mount_point"
-		verify_application "$app_name"
-	fi
-}
-
-# custom installer for when a DMG contains the app within a nested folder, instead of at the top level
-install_dmg_nested_app() {
-	local dmg_file_path="$1"
-	local mount_point="/Volumes/$2"
-	local nested_path="$3"
-	local app_name="$4"
-	local install_path=$(get_install_path "$app_name")
-
-	if [[ ! -e "$install_path" ]]; then
-		local install_root=$(get_install_root "$app_name")
-		mount_image "$dmg_file_path"
-		printf "Installing: %s/%s...\n" "$install_root" "$app_name"
-		cp -a "$mount_point/$nested_path" "$install_root"
-		unmount_image "$mount_point"
-		verify_application "$app_name"
-	fi
-}
-
-
-do_install # invoke the actual installs
+fi
